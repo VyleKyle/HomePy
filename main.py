@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-
-
 import datetime
 import json
 import os
@@ -8,6 +5,7 @@ import tkinter as tk
 import matplotlib.pyplot as plot
 import matplotlib.dates as matdates
 import datetime
+from spot import Spotify
 #import PySimpleGUI
 
 # https://trello.com/b/jlKH0NwF/homepy

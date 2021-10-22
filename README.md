@@ -1,7 +1,8 @@
 HomePy
 =======
 ---
-######_by Kadien_
+###### _by Kadien_
+###### [_[Trello board]_](https://trello.com/b/jlKH0NwF/homepy)
 
 A project for the purpose of advancing my own knowledge through challenge.
 
@@ -11,6 +12,6 @@ Current features include:
 
 Planned features:
 
-- Spotify manipulation
+- Spotify manipulation through API calls
 - Automate daily due occurrence
 - Cryptocurrency information tracking (investment vs price change, etc.)
