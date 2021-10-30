@@ -6,12 +6,11 @@ HomePy
 
 A project for the purpose of advancing my own knowledge through challenge.
 
-Current features include:
+Features being worked on:
 
 - Recording daily dues
+- Spotify manipulation through web API calls
 
 Planned features:
 
-- Spotify manipulation through API calls
-- Automate daily due occurrence
-- Cryptocurrency information tracking (investment vs price change, etc.)
+- Cryptocurrency and financial monitoring
