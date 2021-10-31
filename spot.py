@@ -59,9 +59,13 @@ class Spotify:
     #           -> Man, you really must've screwed the pooch.
     #==========================================================
     def _caller(self):
+
+        living = True
+
         # Init: verify authorization, obtain if needed
         if self.authorized is False:
 
+            # https://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits
             state = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
             data = {
@@ -80,12 +84,15 @@ class Spotify:
             else:
                 webbrowser.open(response.url, new=2)
 
-        while True:
+        # Main loop
+        while living:
             if self.expiration is None:
-                return print("Expiration is None.\nTerminating thread.")
+                print("Expiration is None.\nRestarting call thread.")
+                living = False
             now = datetime.datetime.now()
             if now > self.expiration:
-                pass
+                self.authorized = False
+                living = False
 
 if __name__ == "__main__":
     # Module isn't meant to be run individually. Debug code.
