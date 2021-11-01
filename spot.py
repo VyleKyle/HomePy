@@ -21,7 +21,8 @@ class Spotify:
         # Basic authentication for non-user requests
         self.id = client_id
         self.secret = client_secret
-        self.password = base64.b64encode((client_id + ":" + client_secret).encode('ascii'))
+        self.encoding = base64.b64encode((client_id + ":" + client_secret).encode('ascii'))
+        self.password = "Authorization: Basic " + self.encoding
 
         self.access_token = access_token
         self.refresh_token = refresh_token
@@ -68,6 +69,11 @@ class Spotify:
             # https://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits
             state = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
 
+            # Auth request
+            # Remove show_dialog when done testing
+            # Want to interact with the browser from script
+            # It seems selenium may accomplish this?
+            # Something about geckodriver?
             data = {
             "client_id": self.id,
             "response_type": "code",
@@ -87,14 +93,33 @@ class Spotify:
         # Main loop
         while living:
             if self.expiration is None:
-                print("Expiration is None.\nRestarting call thread.")
-                living = False
-            now = datetime.datetime.now()
-            if now > self.expiration:
+                print("Token expiration is None.\nRestarting call thread.")
                 self.authorized = False
                 living = False
 
+            now = datetime.datetime.now()
+            refreshBuffer = now + datetime.timedelta(minutes=2)
+
+            if living and now > self.expiration:
+                print("Token expiration has passed.\nRestarting call thread.")
+                self.authorized = False
+                living = False
+
+            if living and refreshBuffer > self.expiration:
+                # Do token refresh things.
+                # Once you can reliably initiate auth, at least...
+                pass
+
+            if living and refreshBuffer < self.expiration:
+                # Perform callstack actions
+                # Or sleep if nothing else needs doing
+                pass
+
+            # Impersonate a pheonix in ash
+            if living is False:
+                self.authorized = False
+                self.caller = Thread(target=self._caller, args=(), daemon=True)
+
 if __name__ == "__main__":
-    # Module isn't meant to be run individually. Debug code.
     client = Spotify()
     time.sleep(2)
