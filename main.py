@@ -14,11 +14,10 @@ from spot import Spotify
 
 records = "records/"
 
-WINDOW_BG2 = '#856ff8'
-WINDOW_BG = "#9e90ea"
-UI_BG = "#CA6FF8"
-TEXT_BG = "#e5b8fc"
-CRITICAL_BG = "#ec4ec5"
+WINDOW_BG = "#073642"
+UI_BG = "#586e75"
+TEXT_BG = "#002b36"
+CRITICAL_BG = "#835656"
 
 
 # FUNCTIONS
@@ -76,11 +75,11 @@ def loadData(dates):  # List of string dates in YYYY/MM/DD
             index = day.split("/")  # [year, month, day]
             if len(index) != 3:  # Alright so I think this is what's referred to as spaghetti code.
                 return ValueError(day, "Unexpected format, expecting YYYY/MM/DD")
-            if os.path.isdir(records + index[0]):
+            if os.path.isdir(records + index[0]):  # If year on record...
                 dir = records + index[0] + "/"
-                if os.path.isdir(dir + index[1]):
+                if os.path.isdir(dir + index[1]):  # If month on record...
                     dir += index[1] + "/"
-                    if os.path.isfile(dir + "".join(index) + ".json"):
+                    if os.path.isfile(dir + "".join(index) + ".json"):  #
                         with open(dir + "".join(index) + ".json", "r") as file:
                             tempDay = json.loads(file.read())
                             if len(tempDay["dues"]) > 0:
@@ -324,10 +323,13 @@ class InputDay(tk.Tk):
 
         if os.path.isfile(
         "records/{year}/{month}/{year}{month}{day}.json".format(
-        year = today.year
-        month = today.month
+        year = today.year,
+        month = today.month,
         day = today.day)
         ):
+            pass
+        else:
+            print("Yo it came negative dog. I thought I wrote a day...")
 
     def create_widgets(self):
 
