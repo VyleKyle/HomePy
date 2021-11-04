@@ -6,12 +6,11 @@ import matplotlib.pyplot as plot
 import matplotlib.dates as matdates
 import datetime
 from spot import Spotify
-#import PySimpleGUI
 
 # https://trello.com/b/jlKH0NwF/homepy
 
-# VARS
 
+# VARS
 
 records = "records/"
 
@@ -75,7 +74,7 @@ def loadData(dates):  # List of string dates in YYYY/MM/DD
             return ValueError(day, "Expected str containing date")
         try:
             index = day.split("/")  # [year, month, day]
-            if len(index) != 3:
+            if len(index) != 3:  # Alright so I think this is what's referred to as spaghetti code.
                 return ValueError(day, "Unexpected format, expecting YYYY/MM/DD")
             if os.path.isdir(records + index[0]):
                 dir = records + index[0] + "/"
@@ -97,49 +96,6 @@ def loadData(dates):  # List of string dates in YYYY/MM/DD
         except ValueError as err:
             raise err
     return output
-
-
-def createDay(day):
-
-    # day : dict for instantiating a Day obj
-
-    date = day["date"]
-    date = [int(x) for x in date.split("/")]
-    date = datetime.datetime(year=date[0], month=date[1], day=date[2])
-
-    day = Day(date=date, dues=[x for x in day["dues"]], notes=day["notes"])
-    tempText = ""
-
-    tempText += "Date: " + day.date + "\n"
-
-    for due in day.dues:
-        tempText += "Due (" + str(due.completion) + "): " + due.task + "\n"
-
-    for note in day.notes:
-        tempText += "Note: " + note + "\n"
-
-    output = tk.Frame(highlightthickness=1, highlightbackground="black")
-
-    display = tk.Label(master=output, text=tempText)
-    display.pack()
-
-    output.pack(side="right")
-
-
-
-# tKinter vars
-
-# packme = []  # Items to be packed on first run
-#
-# console = tk.Tk()
-#
-# dayInput = tk.Tk()
-#
-# first = tk.Button(master=console, text="Create a day", command=dayInput.mainloop)
-# packme.append(first)
-#
-# quitter = tk.Button(master=dayInput, text="Destroy!", command=dayInput.quit())
-# packme.append(quitter)
 
 
 # CLASSES
@@ -199,7 +155,7 @@ class Day:
             self.notes = notes
 
 
-class Due:  # Note to self: Make more dynamic. Somehow.
+class Due:
     ####
     # task, string
     # completion, float, intended range 0-1
@@ -244,10 +200,12 @@ class Due:  # Note to self: Make more dynamic. Somehow.
         # If duedate, maintain due next day
         # If no duedate, due expires EOD
         if dueDate is None:
-            pass  # I'd like more functionality elsewhere before I finish this.
-        else:
+            dueDate = datetime.datetime.now().replace(hour=23, minute=59)
+        elif not isinstance(dueDate, datetime.datetime):
+            print("Error handling due date! Due end of day!")
             pass
 
+# Windows as classes
 
 class Root(tk.Tk):
     def __init__(self):
@@ -289,7 +247,6 @@ class Root(tk.Tk):
         graph_data = [[], []]
         graph_temp = list()
         for item in data:
-            print(item)
             graph_temp.append([item['date'], item['dues']])
             tempdate = item['date'].split('/')
             tempdate0 = datetime.datetime(year=int(tempdate[0]), month=int(tempdate[1]), day=int(tempdate[2]))
@@ -305,8 +262,6 @@ class Root(tk.Tk):
         plot.plot_date(graph_data[0], graph_data[1], xdate=True)
         plot.gcf().autofmt_xdate()
         plot.show()
-
-
 
 
 class DisplayDay(tk.Tk):
@@ -343,7 +298,6 @@ class DisplayDay(tk.Tk):
 
 
 class InputDay(tk.Tk):
-    # TODO: load in potentially already entered daily data
     def __init__(self):
 
         super().__init__()
@@ -356,8 +310,24 @@ class InputDay(tk.Tk):
         self.config(bg=WINDOW_BG)  # Lesson learned. Layered frames are default BG and non-transparent.
         # Holy shit even the labels are default non-transparent. ttk makes more sense as I go.
 
+        # Data autopopulation:
+        #=============================
+        # -> Does an entry for this day exist?
+        #    -> Yes
+        #       -> Populate existing fields accordingly
+        #    -> No
+        #       -> Generate empty dues
+        #          -> Read default due values
+        #==============================
 
+        today = datetime.datetime.now()
 
+        if os.path.isfile(
+        "records/{year}/{month}/{year}{month}{day}.json".format(
+        year = today.year
+        month = today.month
+        day = today.day)
+        ):
 
     def create_widgets(self):
 
@@ -376,9 +346,6 @@ class InputDay(tk.Tk):
         self.duesFrame = tk.Frame(master=self.frame, bg=WINDOW_BG)
         self.duesFrame.pack()
 
-        self.addDue()
-        self.addDue()
-
         dueButton = tk.Button(master=self.frame, text="Another Due", command=self.addDue, bg=UI_BG)
         dueButton.pack()
 
@@ -391,7 +358,7 @@ class InputDay(tk.Tk):
         finButton = tk.Button(master=self.frame, text="Finish", command=self.sanitize, bg=UI_BG)
         finButton.pack()
 
-    #  Outputs a structured frame for user input to convert to due obj later
+    #  Creates a structured frame for user input to convert to due obj later
     def addDue(self):
         taskFrame = tk.Frame(master=self.duesFrame, padx=2,  borderwidth=4, relief=tk.GROOVE, bg=WINDOW_BG)
         taskFrame.pack(side="right", padx=4)
@@ -425,6 +392,7 @@ class InputDay(tk.Tk):
         undoDue.pack()
 
         self.sanitizer.append([pointsEntry, completionEntry])
+
 
     def sanitize(self):
 
@@ -470,7 +438,6 @@ class InputDay(tk.Tk):
                         return False
                 entries = [_getEntries(w) for w in due.winfo_children() if _getEntries(w)]
 
-                # Aight bro, if the list indices are lined up right, I should be able to hardcode them...
                 duesOutput.append({
                     "task": entries[0].get(),
                     "points": int(entries[1].get()),
@@ -500,5 +467,5 @@ class InputDay(tk.Tk):
 
 if __name__ == "__main__":
 
-    temp2 = InputDay()
-    temp2.mainloop()
+    temp2 = Root()
+    #temp2.mainloop()
