@@ -9,8 +9,8 @@ A project for the purpose of advancing my own knowledge through challenge.
 Features being worked on:
 
 - Recurring daily dues
-- Spotify manipulation through web API calls
 
 Planned features:
 
 - Cryptocurrency and financial monitoring
+- Spotify manipulation through web API calls
