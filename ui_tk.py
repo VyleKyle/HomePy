@@ -1,17 +1,13 @@
-#!/usr/bin/python3
-#####
-#
-# Old code.
-# Got it to run, but needs reformatting.
-#
-#####
+#!/usr/bin/env python3
 import main
 import tkinter as tk
 import datetime
 import os
 import logging
 
-logging.info("test")
+logger = logging.getLogger("tkui")
+logger.info("Using TK UI")
+
 class Root(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -40,9 +36,8 @@ class Root(tk.Tk):
         self.mainloop()
 
     def loadDays(self):
-        data = loadData(["2021/5/15", "2021/5/16"])
+        data = main.loadData(["2021/12/30"])
         DisplayDay(data[0])
-        DisplayDay(data[1])
 
         # Graph showing average completion of dues
         # 1. Break down day objects into an array of arrays of due objs [ [ date, [ dues ] ], [ date, [ dues ] ] ]
@@ -109,9 +104,10 @@ class InputDay(tk.Tk):
         self.frame = tk.Frame(self, bg=main.config["WINDOW_BG"])
         self.title("Daily Dues")
         self.sanitizer = list()
+        self.date = datetime.date.today()
+        self.datestr = self.date.strftime("%Y/%m/%d")
         self.create_widgets()
         self.frame.pack()
-        self.date = datetime.datetime.now()
         self.config(bg=main.config["WINDOW_BG"])  # Lesson learned. Layered frames are default BG and non-transparent.
         # Holy shit even the labels are default non-transparent. ttk makes more sense as I go.
 
@@ -139,10 +135,11 @@ class InputDay(tk.Tk):
 
     def create_widgets(self):
 
-        dateLabel = tk.Label(master=self.frame, text="Date\n(leave blank for today)", bg=main.config["WINDOW_BG"])
+        dateLabel = tk.Label(master=self.frame, text="Date", bg=main.config["WINDOW_BG"])
         dateLabel.pack()
 
         self.dateEntry = tk.Entry(master=self.frame, bg=main.config["TEXT_BG"])
+        self.dateEntry.insert(0,self.datestr)
         self.dateEntry.pack()  # Made self for sanitization
 
         dateFormatLabel = tk.Label(master=self.frame, text="(Format: YYYY/MM/DD)", bg=main.config["WINDOW_BG"])
@@ -229,7 +226,7 @@ class InputDay(tk.Tk):
                 try:
                     self.date = datetime.datetime.strptime(self.dateEntry.get(), "%y/%m/%d")
                 except Exception as e:
-                    print("You did that wrong! Error handle it!")
+                    logger.exception("Could not parse date")
                     raise e
 
         # Due sanitizer
@@ -254,20 +251,19 @@ class InputDay(tk.Tk):
 
 
         except Exception as e:
-            print("You did that wrong! Error handle it!")
+            logger.exception("Error getting tasks")
             raise e
 
         # To have reached this point indicates clean data, time to ship it off!
 
         notes = []
 
-
-
         output = main.Day(
             date=self.date,
             dues=[main.Due(task=d["task"], completion=d["completion"], points=d["points"]) for d in duesOutput],
             notes=[note for note in self.notesText.get('1.0', tk.END).split('\n')]  # tKinter text isn't 0-based index? It's a string float starting at 1?
         )
+        
         main.saveData([output])
 
 if __name__ == "__main__":

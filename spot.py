@@ -6,7 +6,9 @@ import random
 import string
 import webbrowser
 from threading import Thread
-from mysecrets import client_id, client_secret
+# from mysecrets import client_id, client_secret
+# Oof, main PC is dead atm. Thank god I got it all on github.
+# I've yet to care enough to fix this import.
 
 class Spotify:
 
